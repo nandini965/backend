@@ -13,8 +13,5 @@ RUN npm install
 # Copy the backend code
 COPY . .
 
-# Expose the backend port (e.g., 5000)
-EXPOSE 5000
-
 # Start the application
 CMD ["node", "index.js"]
