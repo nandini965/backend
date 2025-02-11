@@ -107,4 +107,31 @@ app.get('/transaction/id',(req,res)=>{
     t=moment().unix()
     console.log("{ \"timestamp\" : %d, \"msg\" : \"App Started on Port %s\" }", t,  port)
   })
+  const mysql = require("mysql2");
+
+  const config = {
+    host: process.env.DB_HOST || "mysql-db",
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER || "expense",
+    password: process.env.DB_PASSWORD || "ExpenseApp@1",
+    database: process.env.DB_NAME || "transactions",
+  };
+
+  let connection;
+
+  function connectWithRetry() {
+    connection = mysql.createConnection(config);
+
+    connection.connect((err) => {
+      if (err) {
+        console.error("Database connection failed. Retrying in 5 seconds...");
+        setTimeout(connectWithRetry, 5000);
+      } else {
+        console.log("Connected to MySQL successfully!");
+      }
+    });
+  }
+
+  connectWithRetry();
+
 //

@@ -6,7 +6,22 @@ const con = mysql.createConnection({
     user: process.env.DB_USER || dbcreds.DB_USER,
     password: process.env.DB_PWD || dbcreds.DB_PWD,
     database: process.env.DB_DATABASE || dbcreds.DB_DATABASE
+
 });
+
+  connection = mysql.createConnection(config);
+
+  connection.connect((err) => {
+    if (err) {
+      console.error("Database connection failed. Retrying in 5 seconds...");
+      setTimeout(connectWithRetry, 5000);
+    } else {
+      console.log("Connected to MySQL successfully!");
+    }
+  });
+}
+
+connectWithRetry();
 
 function addTransaction(amount, desc) {
     if (!amount || isNaN(Number(amount))) {
