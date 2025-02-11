@@ -9,20 +9,6 @@ const con = mysql.createConnection({
 
 });
 
-  connection = mysql.createConnection(config);
-
-  connection.connect((err) => {
-    if (err) {
-      console.error("Database connection failed. Retrying in 5 seconds...");
-      setTimeout(connectWithRetry, 5000);
-    } else {
-      console.log("Connected to MySQL successfully!");
-    }
-  });
-}
-
-connectWithRetry();
-
 function addTransaction(amount, desc) {
     if (!amount || isNaN(Number(amount))) {
         console.error("Invalid or empty amount provided.");
