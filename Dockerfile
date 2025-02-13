@@ -4,21 +4,21 @@ FROM node:12.2.0-alpine
 # Working Directory
 WORKDIR /node
 
-# Copy the Code
-COPY . .
+# Copy package.json and package-lock.json first to leverage Docker cache
+COPY package*.json ./
 
-# Install dependencies
+# Install dependencies (including mysql2)
 RUN npm install
 
-# OPTIONAL: Run tests if needed (you can comment this if not required)
-# RUN npm run test
+# Copy the rest of the application files
+COPY . .
 
-# Expose the backend service port (adjust if your app uses a different port)
-EXPOSE 8000
-
-# Copy init.sql to a specific directory inside the container (e.g., /docker-entrypoint-initdb.d)
+# Create a directory for init.sql
 RUN mkdir -p /db-init
 COPY init.sql /db-init/init.sql
 
-# Run the code
+# Expose Port
+EXPOSE 8000
+
+# Run the application
 CMD ["node", "index.js"]
