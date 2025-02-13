@@ -1,18 +1,20 @@
-FROM node:12.2.0-alpine
+# Use Node.js LTS as the base image
+FROM node:20
 
-WORKDIR /node
+# Set the working directory inside the container
+WORKDIR /app
 
+# Copy package.json and package-lock.json first to leverage Docker cache
 COPY package*.json ./
 
-# Install dependencies (including mysql2)
-RUN npm install express mysql2 && npm install
+# Install dependencies
+RUN npm install
 
+# Copy the rest of the application files
 COPY . .
 
-RUN mkdir -p /db-init
-COPY init.sql /db-init/init.sql
+# Expose the port the app runs on
+EXPOSE 80
 
-EXPOSE 8080
-
+# Run the application
 CMD ["node", "index.js"]
-
