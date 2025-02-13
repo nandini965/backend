@@ -1,35 +1,24 @@
-# Use an official Node.js runtime as base image
-FROM node:18
+# Node Base Image
+FROM node:12.2.0-alpine
 
-# Set the working directory inside the container
-WORKDIR /app
+# Working Directory
+WORKDIR /node
 
-# Copy package.json and package-lock.json first (to cache dependencies)
-COPY package.json ./
+# Copy the Code
+COPY . .
 
 # Install dependencies
 RUN npm install
 
-# Copy the backend code
-COPY . .
+# OPTIONAL: Run tests if needed (you can comment this if not required)
+# RUN npm run test
 
-# Start the application
-CMD ["node", "index.js"]
-
-
-# Node Base Image
-FROM node:12.2.0-alpine
-
-#Working Directry
-WORKDIR /node
-
-#Copy the Code
-COPY . .
-
-#Install the dependecies
-RUN npm install
-RUN npm run test
+# Expose the backend service port (adjust if your app uses a different port)
 EXPOSE 8000
 
-#Run the code
-CMD ["node","app.js"]
+# Copy init.sql to a specific directory inside the container (e.g., /docker-entrypoint-initdb.d)
+RUN mkdir -p /db-init
+COPY init.sql /db-init/init.sql
+
+# Run the code
+CMD ["node", "index.js"]
