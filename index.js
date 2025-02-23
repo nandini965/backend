@@ -13,14 +13,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 
-// Root Route
-app.get('/', (req, res) => {
-    res.json({ message: "Backend is running successfully!" });
-});
+// ROUTES FOR OUR API
+// =======================================================
 
-// Health Check Route
-app.get('/health', (req, res) => {
-    res.json({ message: "This is the health check" });
+//Health Checking
+app.get('/health',(req,res)=>{
+    res.json("This is the health check");
 });
 
 // ADD TRANSACTION
@@ -109,3 +107,4 @@ app.get('/transaction/id',(req,res)=>{
     t=moment().unix()
     console.log("{ \"timestamp\" : %d, \"msg\" : \"App Started on Port %s\" }", t,  port)
   })
+//
