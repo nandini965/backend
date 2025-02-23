@@ -15,7 +15,9 @@ app.use(cors());
 
 // ROUTES FOR OUR API
 // =======================================================
-
+app.get('/', (req, res) => {
+    res.json({ message: "Backend is running successfully!" });
+});
 //Health Checking
 app.get('/health',(req,res)=>{
     res.json("This is the health check");
