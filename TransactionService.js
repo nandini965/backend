@@ -1,65 +1,87 @@
 const dbcreds = require('./DbConfig');
-const mysql = require('mysql2'); // Change to mysql2
+const mysql = require('mysql2');
 
+// Create MySQL connection
 const con = mysql.createConnection({
     host: process.env.DB_HOST || dbcreds.DB_HOST,
     user: process.env.DB_USER || dbcreds.DB_USER,
     password: process.env.DB_PWD || dbcreds.DB_PWD,
     database: process.env.DB_DATABASE || dbcreds.DB_DATABASE
-
 });
 
-function addTransaction(amount, desc) {
+// Connect to MySQL
+con.connect((err) => {
+    if (err) {
+        console.error("MySQL connection failed:", err.message);
+        return;
+    }
+    console.log("Connected to MySQL successfully!");
+});
+
+// Add a transaction
+function addTransaction(amount, desc, callback) {
     if (!amount || isNaN(Number(amount))) {
         console.error("Invalid or empty amount provided.");
-        return { error: "Invalid or empty amount provided." };
+        return callback({ error: "Invalid or empty amount provided." });
     }
-    var sql = `INSERT INTO \`transactions\` (\`amount\`, \`description\`) VALUES ('${amount}', '${desc}')`;
-    con.query(sql, function(err, result) {
+
+    const sql = "INSERT INTO transactions (amount, description) VALUES (?, ?)";
+    con.query(sql, [amount, desc], (err, result) => {
         if (err) {
             console.error("Error adding transaction:", err.message);
-            return { error: err.message };
+            return callback({ error: err.message });
         }
         console.log("Transaction added successfully.");
-    });
-    return 200; // Consider changing to proper async handling or callback pattern
-}
-
-
-function getAllTransactions(callback){
-    var mysql = "SELECT * FROM transactions";
-    con.query(mysql, function(err,result){
-        if (err) throw err;
-        //console.log("Getting all transactions...");
-        return(callback(result));
+        return callback({ success: true, transactionId: result.insertId });
     });
 }
 
-function findTransactionById(id,callback){
-    var mysql = `SELECT * FROM transactions WHERE id = ${id}`;
-    con.query(mysql, function(err,result){
-        if (err) throw err;
-        console.log(`retrieving transactions with id ${id}`);
-        return(callback(result));
-    }) 
+// Get all transactions
+function getAllTransactions(callback) {
+    const sql = "SELECT * FROM transactions";
+    con.query(sql, (err, result) => {
+        if (err) {
+            console.error("Error retrieving transactions:", err.message);
+            return callback({ error: err.message });
+        }
+        return callback(result);
+    });
 }
 
-function deleteAllTransactions(callback){
-    var mysql = "DELETE FROM transactions";
-    con.query(mysql, function(err,result){
-        if (err) throw err;
-        //console.log("Deleting all transactions...");
-        return(callback(result));
-    }) 
+// Find a transaction by ID
+function findTransactionById(id, callback) {
+    const sql = "SELECT * FROM transactions WHERE id = ?";
+    con.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error(`Error retrieving transaction with ID ${id}:`, err.message);
+            return callback({ error: err.message });
+        }
+        return callback(result);
+    });
 }
 
-function deleteTransactionById(id, callback){
-    var mysql = `DELETE FROM transactions WHERE id = ${id}`;
-    con.query(mysql, function(err,result){
-        if (err) throw err;
-        console.log(`Deleting transactions with id ${id}`);
-        return(callback(result));
-    }) 
+// Delete all transactions
+function deleteAllTransactions(callback) {
+    const sql = "DELETE FROM transactions";
+    con.query(sql, (err, result) => {
+        if (err) {
+            console.error("Error deleting all transactions:", err.message);
+            return callback({ error: err.message });
+        }
+        return callback({ success: true, affectedRows: result.affectedRows });
+    });
+}
+
+// Delete a transaction by ID
+function deleteTransactionById(id, callback) {
+    const sql = "DELETE FROM transactions WHERE id = ?";
+    con.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error(`Error deleting transaction with ID ${id}:`, err.message);
+            return callback({ error: err.message });
+        }
+        return callback({ success: true, affectedRows: result.affectedRows });
+    });
 }
 
 module.exports = {
